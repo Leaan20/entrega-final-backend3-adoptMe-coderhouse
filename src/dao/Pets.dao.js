@@ -14,6 +14,11 @@ export default class Pet {
         return petModel.create(doc);
     }
 
+    // Modificacion en el DAO , para poder ingresar varios documentos
+    saveMany = (docs) => {
+        return petModel.insertMany(docs);
+    }
+
     update = (id,doc) =>{
         return petModel.findByIdAndUpdate(id,{$set:doc})
     }

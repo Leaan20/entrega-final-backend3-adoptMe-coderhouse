@@ -18,6 +18,10 @@ export default class Users {
     update = (id,doc) =>{
         return userModel.findByIdAndUpdate(id,{$set:doc})
     }
+    // Modificacion en el DAO , para poder ingresar varios documentos
+    saveMany = (docs) => {
+        return userModel.insertMany(docs);
+    }
 
     delete = (id) =>{
         return userModel.findByIdAndDelete(id);

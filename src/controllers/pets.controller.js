@@ -2,17 +2,46 @@ import PetDTO from "../dto/Pet.dto.js";
 import { petsService } from "../services/index.js"
 import __dirname from "../utils/index.js";
 
+// Importamos las herramientas para gestionar errores.
+// import {infoErrorGeneratePet} from '../services/errors/info.js';
+// import {Eerrors} from '../services/errors/enum.js';
+// import CustomError from '../services/errors/custom-error.js';
+
+
 const getAllPets = async(req,res)=>{
     const pets = await petsService.getAll();
     res.send({status:"success",payload:pets})
 }
 
-const createPet = async(req,res)=> {
-    const {name,specie,birthDate} = req.body;
-    if(!name||!specie||!birthDate) return res.status(400).send({status:"error",error:"Incomplete values"})
-    const pet = PetDTO.getPetInputFrom({name,specie,birthDate});
-    const result = await petsService.create(pet);
-    res.send({status:"success",payload:result})
+const createPet = async(req,res,next)=> {
+    try {
+        const {name,specie,birthDate} = req.body;
+    
+
+        if(!name||!specie||!birthDate) {
+        // throw CustomError.createError({
+        //     name : 'nueva mascota, faltan datos',
+        //     cause: infoErrorGeneratePet({name, specie, birthDate}),
+        //     message: 'Error al intentar crear una nueva mascota',
+        //     code: Eerrors.INVALID_TYPE
+        //     });
+
+        return res.status(400).send({status:"error",error:"Incomplete values"});
+
+        }
+
+
+        
+
+
+        const pet = PetDTO.getPetInputFrom({name,specie,birthDate});
+        const result = await petsService.create(pet);
+
+        res.send({status:"success",payload:result})
+
+    } catch (error) {
+        next(error);
+    }
 }
 
 const updatePet = async(req,res) =>{
