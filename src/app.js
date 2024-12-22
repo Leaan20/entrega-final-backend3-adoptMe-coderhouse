@@ -1,5 +1,4 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 
 import usersRouter from './routes/users.router.js';
@@ -7,6 +6,7 @@ import petsRouter from './routes/pets.router.js';
 import adoptionsRouter from './routes/adoption.router.js';
 import sessionsRouter from './routes/sessions.router.js';
 import mocksRouter from "./routes/mocks.router.js";
+import connectDB from "./db.js";
 //import loggerRouter from "./routes/logger.router.js";
 //import errorHandler from './middleware/error.js';
 //import { addLogger } from './middleware/middleLogger.js';
@@ -14,8 +14,10 @@ import mocksRouter from "./routes/mocks.router.js";
 
 const app = express();
 const PORT = process.env.PORT||8080;
+connectDB();
 
-const connection = mongoose.connect(`mongodb+srv://LeandroA20:Sonic12345@cluster0.lxqoi.mongodb.net/Adoptme?retryWrites=true&w=majority&appName=Cluster0`);
+// TODO : Proyecto de entrega final
+
 
 // Middleware
 
