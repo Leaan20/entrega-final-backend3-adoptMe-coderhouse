@@ -10,12 +10,23 @@ import connectDB from "./db.js";
 //import loggerRouter from "./routes/logger.router.js";
 //import errorHandler from './middleware/error.js';
 //import { addLogger } from './middleware/middleLogger.js';
-
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
 
 const app = express();
 const PORT = process.env.PORT||8080;
 connectDB();
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.1',
+        info: {
+            title:"Documentacion de la app Adoptme",
+            description: "API dedicada a encontrar familias para mascotas."
+        }
+    },
+    apis:['./src/docs/**/*.yaml']
 
+}
 // TODO : Proyecto de entrega final
 
 
@@ -23,7 +34,8 @@ connectDB();
 
 app.use(express.json());
 app.use(cookieParser());
-
+const specs = swaggerJSDoc(swaggerOptions);
+app.use("/apidocs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 // logger middleware
 //app.use(addLogger);
 

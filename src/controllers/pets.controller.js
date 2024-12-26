@@ -1,7 +1,7 @@
 import PetDTO from "../dto/Pet.dto.js";
 import { petsService } from "../services/index.js"
 import __dirname from "../utils/index.js";
-
+import mongoose from "mongoose";
 // Importamos las herramientas para gestionar errores.
 // import {infoErrorGeneratePet} from '../services/errors/info.js';
 // import {Eerrors} from '../services/errors/enum.js';
@@ -13,35 +13,62 @@ const getAllPets = async(req,res)=>{
     res.send({status:"success",payload:pets})
 }
 
-const createPet = async(req,res,next)=> {
+// se creo una funcion para buscar pets por su _id de MongoDB.
+const getPetById = async (req, res) => {
+    const { pid } = req.params;
+
+    // Verficamos si el pid es un ObjectId de MDB valido
+    if (!mongoose.Types.ObjectId.isValid(pid)) {
+        return res.status(400).send({ status: 'error', message: 'Invalid ID format' });
+    }
+
     try {
-        const {name,specie,birthDate} = req.body;
-    
-
-        if(!name||!specie||!birthDate) {
-        // throw CustomError.createError({
-        //     name : 'nueva mascota, faltan datos',
-        //     cause: infoErrorGeneratePet({name, specie, birthDate}),
-        //     message: 'Error al intentar crear una nueva mascota',
-        //     code: Eerrors.INVALID_TYPE
-        //     });
-
-        return res.status(400).send({status:"error",error:"Incomplete values"});
-
+        // si es correcto el formato, lo enviamos como objeto.
+        const petFound = await petsService.getBy({ _id: pid });
+        if (!petFound) {
+            return res.status(404).send({ status: 'error', message: 'Pet not found' });
         }
 
-
-        
-
-
-        const pet = PetDTO.getPetInputFrom({name,specie,birthDate});
-        const result = await petsService.create(pet);
-
-        res.send({status:"success",payload:result})
-
+        res.send({ status: 'success', payload: petFound });
     } catch (error) {
-        next(error);
+        console.error(error);
+        res.status(500).send({ status: 'error', message: 'Internal Server Error' });
     }
+};
+// TODO : modificar los custom errors
+// prueba de custom error
+// const createPet = async(req,res,next)=> {
+//     try {
+//         const {name,specie,birthDate} = req.body;
+    
+
+//         if(!name||!specie||!birthDate) {
+//         // throw CustomError.createError({
+//         //     name : 'nueva mascota, faltan datos',
+//         //     cause: infoErrorGeneratePet({name, specie, birthDate}),
+//         //     message: 'Error al intentar crear una nueva mascota',
+//         //     code: Eerrors.INVALID_TYPE
+//         //     });
+
+//         return res.status(400).send({status:"error",error:"Incomplete values"});
+
+//         }
+
+//         const pet = PetDTO.getPetInputFrom({name,specie,birthDate});
+//         const result = await petsService.create(pet);
+
+//         res.send({status:"success",payload:result})
+
+//     } catch (error) {
+//         next(error);
+//     }
+// }
+const createPet = async(req,res)=> {
+    const {name,specie,birthDate} = req.body;
+    if(!name||!specie||!birthDate) return res.status(400).send({status:"error",error:"Incomplete values"})
+    const pet = PetDTO.getPetInputFrom({name,specie,birthDate});
+    const result = await petsService.create(pet);
+    res.send({status:"success",payload:result})
 }
 
 const updatePet = async(req,res) =>{
@@ -73,9 +100,10 @@ const createPetWithImage = async(req,res) =>{
     res.send({status:"success",payload:result})
 }
 export default {
-    getAllPets,
     createPet,
-    updatePet,
+    createPetWithImage,
     deletePet,
-    createPetWithImage
+    getAllPets,
+    getPetById,
+    updatePet,
 }
